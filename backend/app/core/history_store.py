@@ -13,6 +13,10 @@ from app.data.green_patterns import get_pattern_library
 logger = logging.getLogger(__name__)
 
 
+def _history_enabled() -> bool:
+    return get_settings().persist_history
+
+
 class FileHistoryStore:
     def __init__(self, history_file_path: str) -> None:
         self._history_file = Path(history_file_path)
@@ -70,6 +74,9 @@ def _temp_history_store() -> FileHistoryStore:
 
 
 def load_scan_history() -> list[dict[str, Any]]:
+    if not _history_enabled():
+        return []
+
     store = _history_store()
     try:
         return store.load()
@@ -79,6 +86,9 @@ def load_scan_history() -> list[dict[str, Any]]:
 
 
 def save_scan_history(entries: list[dict[str, Any]]) -> None:
+    if not _history_enabled():
+        return
+
     store = _history_store()
     try:
         store.save(entries)
@@ -88,6 +98,9 @@ def save_scan_history(entries: list[dict[str, Any]]) -> None:
 
 
 def append_scan_history(entry: dict[str, Any]) -> None:
+    if not _history_enabled():
+        return
+
     store = _history_store()
     try:
         store.append(entry)
@@ -97,6 +110,9 @@ def append_scan_history(entry: dict[str, Any]) -> None:
 
 
 def reset_scan_history() -> dict[str, int]:
+    if not _history_enabled():
+        return {"cleared_entries": 0}
+
     store = _history_store()
     try:
         return store.reset()
@@ -106,10 +122,28 @@ def reset_scan_history() -> dict[str, int]:
 
 
 def build_reports_summary() -> dict[str, Any]:
+    if not _history_enabled():
+        return {
+            "history_enabled": False,
+            "total_scans": 0,
+            "repositories_scanned": 0,
+            "average_health_score": 0,
+            "latest_health_score": 0,
+            "health_delta": "0",
+            "total_files_scanned": 0,
+            "total_anomalies_found": 0,
+            "critical_patterns_detected": 0,
+            "chart_status": "History is disabled in one-time audit mode.",
+            "history": [],
+            "recent_scans": [],
+            "pattern_usage": [],
+        }
+
     history = load_scan_history()
 
     if not history:
         return {
+            "history_enabled": True,
             "total_scans": 0,
             "repositories_scanned": 0,
             "average_health_score": 0,
@@ -175,6 +209,7 @@ def build_reports_summary() -> dict[str, Any]:
     enriched_patterns.sort(key=lambda pattern: pattern["times_recommended"], reverse=True)
 
     return {
+        "history_enabled": True,
         "total_scans": total_scans,
         "repositories_scanned": repositories_scanned,
         "average_health_score": average_health_score,
@@ -219,6 +254,9 @@ def make_scan_history_entry(result: dict[str, Any]) -> dict[str, Any]:
 
 def record_scan_result(result: dict[str, Any]) -> dict[str, Any]:
     entry = make_scan_history_entry(result)
+    if not _history_enabled():
+        return entry
+
     artifact_reference = upload_scan_artifact(result)
     if artifact_reference:
         entry.update(artifact_reference)

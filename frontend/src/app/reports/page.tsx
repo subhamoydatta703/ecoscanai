@@ -50,6 +50,7 @@ export default function ReportsPage() {
   }
 
   const history = data?.history || [];
+  const historyEnabled = data?.history_enabled !== false;
   const hasSingleEntry = history.length === 1;
   const latestScan = data?.recent_scans?.[0];
   const chartColumns =
@@ -73,11 +74,12 @@ export default function ReportsPage() {
               <button
                 type="button"
                 onClick={handleReset}
-                disabled={resetting}
-                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={resetting || !historyEnabled}
+                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={historyEnabled ? "Reset stored audit history" : "History is disabled in one-time mode"}
               >
                 <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
-                {resetting ? 'Resetting...' : 'Reset History'}
+                {!historyEnabled ? 'History Off' : resetting ? 'Resetting...' : 'Reset History'}
               </button>
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-emerald-50">
@@ -94,7 +96,7 @@ export default function ReportsPage() {
                 Pattern activity
               </span>
               <span className="px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-900/20 text-sm text-emerald-200/80">
-                Resettable history
+                {historyEnabled ? 'Resettable history' : 'One-time audit mode'}
               </span>
             </div>
             </div>
@@ -139,6 +141,12 @@ export default function ReportsPage() {
             </div>
           </header>
 
+          {!historyEnabled && (
+            <div className="rounded-3xl border border-amber-500/20 bg-amber-950/20 px-5 py-4 text-sm text-amber-100/85">
+              Reports history is disabled right now, so this page only shows live zero-state analytics. Turn on `ECOSCAN_PERSIST_HISTORY` later when you add user-isolated storage.
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -157,7 +165,7 @@ export default function ReportsPage() {
                <div className="text-4xl font-black text-emerald-400">{data?.total_anomalies_found || 0}</div>
                <p className="text-sm text-emerald-200/50 mt-2">{data?.critical_patterns_detected || 0} critical complexity matches</p>
                <div className="mt-5 flex items-center gap-2 text-xs text-emerald-300/70">
-                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">Observed across history</span>
+                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">{historyEnabled ? 'Observed across history' : 'One-time mode active'}</span>
                </div>
             </div>
 
@@ -167,7 +175,7 @@ export default function ReportsPage() {
                <div className="text-4xl font-black text-emerald-300">{data?.repositories_scanned || 0}</div>
                <p className="text-sm text-emerald-200/50 mt-2">{data?.total_scans || 0} total scans | {data?.total_files_scanned || 0} files inspected</p>
                <div className="mt-5 flex items-center gap-2 text-xs text-emerald-300/70">
-                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">Persistent history</span>
+                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">{historyEnabled ? 'Persistent history' : 'Storage disabled'}</span>
                </div>
             </div>
 
@@ -316,7 +324,9 @@ export default function ReportsPage() {
                 <BarChart2 className="w-16 h-16 text-emerald-500/30 mx-auto" />
                 <h2 className="text-xl font-medium text-emerald-100">{data?.chart_status || "Initializing..."}</h2>
                 <p className="text-emerald-500/50 text-sm max-w-sm mx-auto">
-                  Run an audit from the Dashboard to build your scan history and trend chart.
+                  {historyEnabled
+                    ? 'Run an audit from the Dashboard to build your scan history and trend chart.'
+                    : 'One-time mode is active, so reports stay empty until persistent history is re-enabled.'}
                 </p>
               </div>
             )}

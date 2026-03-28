@@ -38,10 +38,25 @@ def _parse_int(name: str, default: int, minimum: int = 1) -> int:
     return value
 
 
+def _parse_bool(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return default
+
+    normalized = raw.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+
+    raise ValueError(f"{name} must be a boolean value.")
+
+
 @dataclass(frozen=True)
 class Settings:
     gemini_api_key: str
     gemini_model: str
+    persist_history: bool
     supabase_url: str
     supabase_key: str
     supabase_history_table: str
@@ -58,6 +73,7 @@ def get_settings() -> Settings:
     return Settings(
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",
+        persist_history=_parse_bool("ECOSCAN_PERSIST_HISTORY", default=False),
         supabase_url=os.getenv("SUPABASE_URL", "").strip(),
         supabase_key=os.getenv("SUPABASE_KEY", "").strip(),
         supabase_history_table=os.getenv("SUPABASE_HISTORY_TABLE", "scan_history").strip() or "scan_history",

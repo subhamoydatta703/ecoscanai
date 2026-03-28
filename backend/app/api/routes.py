@@ -45,10 +45,12 @@ async def get_patterns():
     Endpoint to fetch the Green Coding Patterns Library.
     """
     from app.core.history_store import load_scan_history
+    from app.core.settings import get_settings
     from app.data.green_patterns import get_pattern_library
 
     history = load_scan_history()
     return {
+        "history_enabled": get_settings().persist_history,
         "patterns": get_pattern_library(history)
     }
 

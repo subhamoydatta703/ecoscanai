@@ -35,6 +35,7 @@ export interface ScanResult {
 }
 
 export interface ReportsResponse {
+  history_enabled?: boolean;
   total_scans: number;
   repositories_scanned: number;
   average_health_score: number;
@@ -82,5 +83,6 @@ export interface Pattern {
 }
 
 export interface PatternsResponse {
+  history_enabled?: boolean;
   patterns: Pattern[];
 }

@@ -44,6 +44,18 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.supabase_storage_bucket, "ecoscan-artifacts")
         self.assertEqual(settings.supabase_storage_prefix, "reports")
 
+    def test_reads_history_persistence_flag_from_environment(self):
+        with patch.dict(
+            os.environ,
+            {
+                "ECOSCAN_PERSIST_HISTORY": "true",
+            },
+            clear=False,
+        ):
+            settings = get_settings()
+
+        self.assertTrue(settings.persist_history)
+
 
 if __name__ == "__main__":
     unittest.main()

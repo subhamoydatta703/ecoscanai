@@ -25,6 +25,7 @@ class ApiTests(unittest.TestCase):
             os.environ,
             {
                 "ECOSCAN_HISTORY_FILE": str(self.history_file),
+                "ECOSCAN_PERSIST_HISTORY": "true",
                 "SUPABASE_URL": "",
                 "SUPABASE_KEY": "",
             },

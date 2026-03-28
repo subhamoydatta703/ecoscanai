@@ -36,6 +36,7 @@ const IMPACT_ORDER: Record<string, number> = {
 
 export default function GreenPatternsPage() {
   const [patterns, setPatterns] = useState<Pattern[]>([]);
+  const [historyEnabled, setHistoryEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [resetting, setResetting] = useState(false);
 
@@ -43,6 +44,7 @@ export default function GreenPatternsPage() {
     try {
       const result = await getPatterns();
       setPatterns(result.patterns || []);
+      setHistoryEnabled(result.history_enabled !== false);
     } catch (err) {
       console.error('Failed to fetch patterns:', err);
     } finally {
@@ -68,7 +70,7 @@ export default function GreenPatternsPage() {
     if (usageDelta !== 0) return usageDelta;
     return (IMPACT_ORDER[b.impact] || 0) - (IMPACT_ORDER[a.impact] || 0);
   });
-  const featuredPattern = sortedPatterns[0];
+  const featuredPattern = activePatterns.length > 0 ? sortedPatterns[0] : null;
   const maxRecommendations = Math.max(...sortedPatterns.map((pattern) => pattern.times_recommended || 0), 1);
   const totalRecommendations = patterns.reduce((sum, pattern) => sum + (pattern.times_recommended || 0), 0);
   const featuredUsageShare = featuredPattern
@@ -107,11 +109,12 @@ export default function GreenPatternsPage() {
               <button
                 type="button"
                 onClick={handleReset}
-                disabled={resetting}
-                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={resetting || !historyEnabled}
+                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={historyEnabled ? "Reset stored audit history" : "History is disabled in one-time mode"}
               >
                 <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
-                {resetting ? 'Resetting...' : 'Reset History'}
+                {!historyEnabled ? 'History Off' : resetting ? 'Resetting...' : 'Reset History'}
               </button>
             </div>
             <div className="space-y-4">
@@ -119,7 +122,9 @@ export default function GreenPatternsPage() {
                 Green Coding Patterns
               </h1>
               <p className="text-emerald-100/60 text-lg md:text-xl max-w-4xl leading-relaxed">
-                A living catalog of the optimization patterns your audits can actually surface, ranked by observed usage across your scan history.
+                {historyEnabled
+                  ? 'A living catalog of the optimization patterns your audits can actually surface, ranked by observed usage across your scan history.'
+                  : 'The pattern library is still available, but one-time mode is active so usage history is intentionally not being saved.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -130,12 +135,12 @@ export default function GreenPatternsPage() {
                 Repository reach
               </span>
               <span className="px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-900/20 text-sm text-emerald-200/80">
-                Match-note history
+                {historyEnabled ? 'Match-note history' : 'Library-only mode'}
               </span>
             </div>
           </div>
 
-          {featuredPattern && (
+          {featuredPattern ? (
             <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(6,24,20,0.95),rgba(7,15,30,0.92))] p-6 md:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_45%)] pointer-events-none" />
               <div className="relative space-y-6">
@@ -172,8 +177,49 @@ export default function GreenPatternsPage() {
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(6,24,20,0.95),rgba(7,15,30,0.92))] p-6 md:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.25)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_45%)] pointer-events-none" />
+              <div className="relative space-y-5">
+                <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-emerald-300/70">
+                  <Sparkles className="w-4 h-4" />
+                  Pattern Activity
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-emerald-50">No observed patterns yet</h2>
+                  <p className="text-sm text-emerald-100/65 mt-3 leading-relaxed">
+                    {historyEnabled
+                      ? 'The library is ready, but no audits are currently contributing usage data. This is the expected state right after a reset or before the first scan.'
+                      : 'The library is ready, but history tracking is disabled in one-time mode, so no usage data is being accumulated.'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-950/45 p-4 min-h-24 flex flex-col justify-between">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-500/60">Hits</p>
+                    <p className="text-3xl font-black text-emerald-300 mt-3">0</p>
+                    <p className="text-xs text-emerald-100/45 mt-2">No recommendations recorded</p>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-950/45 p-4 min-h-24 flex flex-col justify-between">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-500/60">Repos</p>
+                    <p className="text-3xl font-black text-emerald-300 mt-3">0</p>
+                    <p className="text-xs text-emerald-100/45 mt-2">No repositories reached yet</p>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-950/45 p-4 min-h-24 flex flex-col justify-between">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-500/60">Usage Share</p>
+                    <p className="text-3xl font-black text-emerald-300 mt-3">0%</p>
+                    <p className="text-xs text-emerald-100/45 mt-2">No active pattern share yet</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </header>
+
+        {!historyEnabled && (
+          <div className="rounded-3xl border border-amber-500/20 bg-amber-950/20 px-5 py-4 text-sm text-amber-100/85">
+            History tracking is off right now. Everyone sees the same library, but no audit usage is being stored until persistence is explicitly re-enabled.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -191,7 +237,7 @@ export default function GreenPatternsPage() {
             </div>
             <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Observed In Audits</p>
             <p className="text-5xl font-black text-emerald-300 mt-4">{activePatterns.length}</p>
-            <p className="text-sm text-emerald-100/50 mt-3">Patterns that have already shown up in your repositories.</p>
+            <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'Patterns that have already shown up in your repositories.' : 'Usage counts stay empty while one-time mode is active.'}</p>
           </div>
 
             <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -200,7 +246,7 @@ export default function GreenPatternsPage() {
               </div>
               <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Total Recommendations</p>
               <p className="text-5xl font-black text-emerald-300 mt-4">{totalRecommendations}</p>
-              <p className="text-sm text-emerald-100/50 mt-3">How often the library has been matched across audits.</p>
+              <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'How often the library has been matched across audits.' : 'Recommendation totals are zero because saved history is disabled.'}</p>
             </div>
         </div>
 
@@ -212,7 +258,7 @@ export default function GreenPatternsPage() {
             </div>
             <div className="hidden md:flex items-center gap-2 text-sm text-emerald-400/70">
               <ArrowUpRight className="w-4 h-4" />
-              Highest usage first
+              {historyEnabled ? 'Highest usage first' : 'Library order only'}
             </div>
           </div>
 
