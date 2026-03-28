@@ -49,6 +49,11 @@ npm run dev
 
 - `GEMINI_API_KEY`: Google Gemini API key used for AI refactoring suggestions.
 - `GEMINI_MODEL`: Optional Gemini model override.
+- `SUPABASE_URL`: Supabase project URL used by the backend.
+- `SUPABASE_KEY`: Supabase service role key used for server-side database and storage access.
+- `SUPABASE_HISTORY_TABLE`: Supabase Postgres table that stores audit history.
+- `SUPABASE_STORAGE_BUCKET`: Supabase Storage bucket that stores per-scan JSON artifacts.
+- `SUPABASE_STORAGE_PREFIX`: Folder prefix inside the storage bucket for uploaded scan artifacts.
 - `ECOSCAN_CORS_ORIGINS`: Comma-separated allowed frontend origins.
 - `ECOSCAN_CORS_ORIGIN_REGEX`: Regex for additional dev origins such as LAN IPs.
 - `ECOSCAN_MAX_SCAN_FILES`: Maximum files scanned per audit.
@@ -80,6 +85,20 @@ npm run lint
 - `backend/.env` and `frontend/.env.local` are local-only files and should not be committed.
 - Scan history is runtime data and should not be treated as committed source of truth.
 
+## Supabase Setup
+
+1. Create a Supabase project.
+2. Open the SQL Editor and run [`backend/supabase/schema.sql`](backend/supabase/schema.sql).
+3. Copy your project URL and service role key from `Project Settings` -> `API`.
+4. Add these values to [`backend/.env.example`](backend/.env.example) or your deployed backend environment:
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+   - `SUPABASE_HISTORY_TABLE=scan_history`
+   - `SUPABASE_STORAGE_BUCKET=scan-artifacts`
+   - `SUPABASE_STORAGE_PREFIX=audits`
+
+With those variables present, EcoScan stores audit history in Supabase Postgres and uploads full scan-result JSON artifacts to Supabase Storage. Without them, the backend falls back to the local `scan_history.json` file for development.
+
 ## Deploying to Vercel
 
 This repository is structured to deploy cleanly as two Vercel projects from the same Git repository:
@@ -103,6 +122,11 @@ This repository is structured to deploy cleanly as two Vercel projects from the 
 4. Add the required environment variables:
    - `GEMINI_API_KEY`
    - `GEMINI_MODEL` (optional)
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+   - `SUPABASE_HISTORY_TABLE`
+   - `SUPABASE_STORAGE_BUCKET`
+   - `SUPABASE_STORAGE_PREFIX`
    - `ECOSCAN_CORS_ORIGINS=https://your-frontend-project.vercel.app`
    - `ECOSCAN_CORS_ORIGIN_REGEX` (optional if explicit origins are enough)
    - `ECOSCAN_MAX_SCAN_FILES`
@@ -113,7 +137,8 @@ This repository is structured to deploy cleanly as two Vercel projects from the 
 
 - The frontend should call the deployed backend through `NEXT_PUBLIC_API_BASE_URL`.
 - The backend should explicitly allow the deployed frontend origin through `ECOSCAN_CORS_ORIGINS`.
-- Local runtime files such as `scan_history.json` are intentionally excluded from deployment source control.
+- Supabase should be configured for production so Reports and Green Patterns persist across serverless executions.
+- Local runtime files such as `scan_history.json` are intentionally excluded from deployment source control and remain only as a development fallback.
 
 ## Summary
 

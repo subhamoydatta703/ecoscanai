@@ -4,3 +4,4 @@ gitpython
 scikit-learn
 google-genai
 python-dotenv
+supabase

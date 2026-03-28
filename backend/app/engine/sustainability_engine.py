@@ -3,7 +3,7 @@ from typing import Dict, Any
 import logging
 import time
 
-from app.core.history_store import append_scan_history, make_scan_history_entry
+from app.core.history_store import record_scan_result
 from app.data.green_patterns import match_patterns
 from app.core.repo_manager import repo_manager
 from app.engine.scanner import CodeScanner
@@ -112,7 +112,7 @@ class SustainabilityEngine:
                      "ai_seconds": round(ai_duration, 3),
                  },
             }
-            append_scan_history(make_scan_history_entry(result))
+            record_scan_result(result)
             return result
 
         except Exception as e:

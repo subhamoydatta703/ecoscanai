@@ -23,7 +23,11 @@ class ApiTests(unittest.TestCase):
         self.history_file = self.temp_dir / "scan_history.json"
         self.env_patcher = patch.dict(
             os.environ,
-            {"ECOSCAN_HISTORY_FILE": str(self.history_file)},
+            {
+                "ECOSCAN_HISTORY_FILE": str(self.history_file),
+                "SUPABASE_URL": "",
+                "SUPABASE_KEY": "",
+            },
             clear=False,
         )
         self.env_patcher.start()

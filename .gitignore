@@ -16,6 +16,7 @@ frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/.env.local
+frontend/.git.backup/
 
 # Misc
 .DS_Store

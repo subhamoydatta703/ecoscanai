@@ -42,6 +42,11 @@ def _parse_int(name: str, default: int, minimum: int = 1) -> int:
 class Settings:
     gemini_api_key: str
     gemini_model: str
+    supabase_url: str
+    supabase_key: str
+    supabase_history_table: str
+    supabase_storage_bucket: str
+    supabase_storage_prefix: str
     cors_origins: list[str]
     cors_origin_regex: str
     history_file_path: str
@@ -53,6 +58,11 @@ def get_settings() -> Settings:
     return Settings(
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",
+        supabase_url=os.getenv("SUPABASE_URL", "").strip(),
+        supabase_key=os.getenv("SUPABASE_KEY", "").strip(),
+        supabase_history_table=os.getenv("SUPABASE_HISTORY_TABLE", "scan_history").strip() or "scan_history",
+        supabase_storage_bucket=os.getenv("SUPABASE_STORAGE_BUCKET", "scan-artifacts").strip() or "scan-artifacts",
+        supabase_storage_prefix=os.getenv("SUPABASE_STORAGE_PREFIX", "audits").strip().strip("/") or "audits",
         cors_origins=_parse_csv(
             os.getenv("ECOSCAN_CORS_ORIGINS"),
             ["http://localhost:3000", "http://127.0.0.1:3000"],

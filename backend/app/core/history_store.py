@@ -1,50 +1,74 @@
 import json
+import logging
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.data.green_patterns import get_pattern_library
 from app.core.settings import get_settings
+from app.core.supabase_store import SupabaseHistoryStore, is_supabase_configured, upload_scan_artifact
+from app.data.green_patterns import get_pattern_library
+
+logger = logging.getLogger(__name__)
 
 
-def _history_file() -> Path:
-    return Path(get_settings().history_file_path)
+class FileHistoryStore:
+    def __init__(self, history_file_path: str) -> None:
+        self._history_file = Path(history_file_path)
+
+    def _ensure_history_file(self) -> Path:
+        self._history_file.parent.mkdir(parents=True, exist_ok=True)
+        if not self._history_file.exists():
+            self._history_file.write_text("[]", encoding="utf-8")
+        return self._history_file
+
+    def load(self) -> list[dict[str, Any]]:
+        history_file = self._ensure_history_file()
+        try:
+            return json.loads(history_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            history_file.write_text("[]", encoding="utf-8")
+            return []
+
+    def save(self, entries: list[dict[str, Any]]) -> None:
+        history_file = self._ensure_history_file()
+        history_file.write_text(json.dumps(entries, indent=2), encoding="utf-8")
+
+    def append(self, entry: dict[str, Any]) -> None:
+        history = self.load()
+        history.append(entry)
+        self.save(history)
+
+    def reset(self) -> dict[str, int]:
+        cleared_entries = len(self.load())
+        self.save([])
+        return {"cleared_entries": cleared_entries}
 
 
-def _ensure_history_file() -> Path:
-    history_file = _history_file()
-    history_file.parent.mkdir(parents=True, exist_ok=True)
-    if not history_file.exists():
-        history_file.write_text("[]", encoding="utf-8")
-    return history_file
+def _history_store():
+    settings = get_settings()
+    if is_supabase_configured():
+        try:
+            return SupabaseHistoryStore()
+        except Exception as exc:  # pragma: no cover - depends on external Supabase availability
+            logger.warning("Supabase history unavailable, falling back to local file storage: %s", exc)
+    return FileHistoryStore(settings.history_file_path)
 
 
 def load_scan_history() -> list[dict[str, Any]]:
-    history_file = _ensure_history_file()
-    try:
-        return json.loads(history_file.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        history_file.write_text("[]", encoding="utf-8")
-        return []
+    return _history_store().load()
 
 
 def save_scan_history(entries: list[dict[str, Any]]) -> None:
-    history_file = _ensure_history_file()
-    history_file.write_text(json.dumps(entries, indent=2), encoding="utf-8")
+    _history_store().save(entries)
 
 
 def append_scan_history(entry: dict[str, Any]) -> None:
-    history = load_scan_history()
-    history.append(entry)
-    save_scan_history(history)
+    _history_store().append(entry)
 
 
 def reset_scan_history() -> dict[str, int]:
-    history = load_scan_history()
-    cleared_entries = len(history)
-    save_scan_history([])
-    return {"cleared_entries": cleared_entries}
+    return _history_store().reset()
 
 
 def build_reports_summary() -> dict[str, Any]:
@@ -157,3 +181,12 @@ def make_scan_history_entry(result: dict[str, Any]) -> dict[str, Any]:
         "pattern_counts": dict(pattern_counts),
         "scanned_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def record_scan_result(result: dict[str, Any]) -> dict[str, Any]:
+    entry = make_scan_history_entry(result)
+    artifact_reference = upload_scan_artifact(result)
+    if artifact_reference:
+        entry.update(artifact_reference)
+    append_scan_history(entry)
+    return entry
