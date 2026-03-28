@@ -106,16 +106,18 @@ export default function GreenPatternsPage() {
                 <BookOpen className="w-4 h-4" />
                 Pattern Library
               </div>
-              <button
-                type="button"
-                onClick={handleReset}
-                disabled={resetting || !historyEnabled}
-                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={historyEnabled ? "Reset stored audit history" : "History is disabled in one-time mode"}
-              >
-                <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
-                {!historyEnabled ? 'History Off' : resetting ? 'Resetting...' : 'Reset History'}
-              </button>
+              {historyEnabled && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  disabled={resetting}
+                  className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-950/40 px-4 py-2 text-sm font-medium text-red-200 transition-colors hover:bg-red-950/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Reset stored audit history"
+                >
+                  <RotateCcw className={`w-4 h-4 ${resetting ? 'animate-spin' : ''}`} />
+                  {resetting ? 'Resetting...' : 'Reset History'}
+                </button>
+              )}
             </div>
             <div className="space-y-4">
               <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-emerald-50 max-w-4xl">
@@ -124,7 +126,7 @@ export default function GreenPatternsPage() {
               <p className="text-emerald-100/60 text-lg md:text-xl max-w-4xl leading-relaxed">
                 {historyEnabled
                   ? 'A living catalog of the optimization patterns your audits can actually surface, ranked by observed usage across your scan history.'
-                  : 'The pattern library is still available, but one-time mode is active so usage history is intentionally not being saved.'}
+                  : 'A curated library of the optimization patterns EcoScan can surface. This build keeps the catalog visible without storing shared usage history.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -135,7 +137,7 @@ export default function GreenPatternsPage() {
                 Repository reach
               </span>
               <span className="px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-900/20 text-sm text-emerald-200/80">
-                {historyEnabled ? 'Match-note history' : 'Library-only mode'}
+                {historyEnabled ? 'Match-note history' : 'Curated pattern library'}
               </span>
             </div>
           </div>
@@ -190,7 +192,7 @@ export default function GreenPatternsPage() {
                   <p className="text-sm text-emerald-100/65 mt-3 leading-relaxed">
                     {historyEnabled
                       ? 'The library is ready, but no audits are currently contributing usage data. This is the expected state right after a reset or before the first scan.'
-                      : 'The library is ready, but history tracking is disabled in one-time mode, so no usage data is being accumulated.'}
+                      : 'The library is ready. This experience currently focuses on the reusable pattern catalog rather than saved usage activity.'}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -215,12 +217,6 @@ export default function GreenPatternsPage() {
           )}
         </header>
 
-        {!historyEnabled && (
-          <div className="rounded-3xl border border-amber-500/20 bg-amber-950/20 px-5 py-4 text-sm text-amber-100/85">
-            History tracking is off right now. Everyone sees the same library, but no audit usage is being stored until persistence is explicitly re-enabled.
-          </div>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -237,7 +233,7 @@ export default function GreenPatternsPage() {
             </div>
             <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Observed In Audits</p>
             <p className="text-5xl font-black text-emerald-300 mt-4">{activePatterns.length}</p>
-            <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'Patterns that have already shown up in your repositories.' : 'Usage counts stay empty while one-time mode is active.'}</p>
+            <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'Patterns that have already shown up in your repositories.' : 'Usage-based ranking is currently inactive in this history-free build.'}</p>
           </div>
 
             <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -246,7 +242,7 @@ export default function GreenPatternsPage() {
               </div>
               <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Total Recommendations</p>
               <p className="text-5xl font-black text-emerald-300 mt-4">{totalRecommendations}</p>
-              <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'How often the library has been matched across audits.' : 'Recommendation totals are zero because saved history is disabled.'}</p>
+              <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'How often the library has been matched across audits.' : 'Recommendation totals stay at zero while the app is running without shared history.'}</p>
             </div>
         </div>
 
@@ -258,7 +254,7 @@ export default function GreenPatternsPage() {
             </div>
             <div className="hidden md:flex items-center gap-2 text-sm text-emerald-400/70">
               <ArrowUpRight className="w-4 h-4" />
-              {historyEnabled ? 'Highest usage first' : 'Library order only'}
+              {historyEnabled ? 'Highest usage first' : 'Catalog-first view'}
             </div>
           </div>
 
