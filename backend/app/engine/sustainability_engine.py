@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any
 import logging
 import time
+from functools import lru_cache
 
 from app.core.history_store import record_scan_result
 from app.data.green_patterns import match_patterns
@@ -125,4 +126,7 @@ class SustainabilityEngine:
             if cleanup_needed and target_dir:
                 repo_manager.cleanup(target_dir)
 
-sustainability_engine = SustainabilityEngine()
+
+@lru_cache(maxsize=1)
+def get_sustainability_engine() -> SustainabilityEngine:
+    return SustainabilityEngine()

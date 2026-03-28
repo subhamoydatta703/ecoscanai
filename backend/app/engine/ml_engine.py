@@ -1,8 +1,14 @@
-import numpy as np
-from sklearn.ensemble import IsolationForest
-
 class MLEngine:
     def __init__(self):
+        try:
+            import numpy as np
+            from sklearn.ensemble import IsolationForest
+        except Exception:
+            self.np = None
+            self.model = None
+            return
+
+        self.np = np
         self.model = IsolationForest(contamination=0.1, random_state=42)
         
     def detect_anomalies(self, file_metrics: list[dict]) -> list[dict]:
@@ -12,6 +18,16 @@ class MLEngine:
         """
         if not file_metrics:
             return []
+
+        if self.model is None or self.np is None:
+            for metric in file_metrics:
+                metric['is_anomaly'] = metric.get('computational_complexity', 0) > 10 or metric.get('loop_depth', 0) > 2
+                metric['anomaly_score'] = 0.8 if metric['is_anomaly'] else 0.1
+                if metric['is_anomaly']:
+                    metric['anomaly_reasons'] = [
+                        "Structural heuristics flagged this file because ML dependencies are unavailable in the current runtime."
+                    ]
+            return file_metrics
 
         features = []
         for metric in file_metrics:
@@ -23,7 +39,7 @@ class MLEngine:
                 metric.get('computational_complexity', 0)
             ])
             
-        X = np.array(features)
+        X = self.np.array(features)
 
         if len(X) < 5:
             for metric in file_metrics:

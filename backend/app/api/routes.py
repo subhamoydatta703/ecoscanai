@@ -7,7 +7,7 @@ from typing import Optional
 from app.api.validation import validate_scan_target
 from app.core.history_store import build_reports_summary, load_scan_history, reset_scan_history
 from app.data.green_patterns import get_pattern_library
-from app.engine.sustainability_engine import sustainability_engine
+from app.engine.sustainability_engine import get_sustainability_engine
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ async def scan_repository(request: ScanRequest):
         raise HTTPException(status_code=400, detail=validation_error)
 
     logger.info("Starting repository scan", extra={"target": request.url, "is_local": request.is_local})
-    result = await sustainability_engine.audit_repository(request.url, request.is_local)
+    result = await get_sustainability_engine().audit_repository(request.url, request.is_local)
     if result.get("status") == "error":
         logger.error("Repository scan failed", extra={"target": request.url, "message": result.get("message", "")})
     return result
