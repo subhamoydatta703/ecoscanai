@@ -3,6 +3,7 @@ import logging
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+import tempfile
 from typing import Any
 
 from app.core.settings import get_settings
@@ -17,10 +18,19 @@ class FileHistoryStore:
         self._history_file = Path(history_file_path)
 
     def _ensure_history_file(self) -> Path:
-        self._history_file.parent.mkdir(parents=True, exist_ok=True)
-        if not self._history_file.exists():
-            self._history_file.write_text("[]", encoding="utf-8")
-        return self._history_file
+        try:
+            self._history_file.parent.mkdir(parents=True, exist_ok=True)
+            if not self._history_file.exists():
+                self._history_file.write_text("[]", encoding="utf-8")
+            return self._history_file
+        except OSError as exc:
+            logger.warning("Configured history file is not writable, falling back to temp storage: %s", exc)
+            fallback = Path(tempfile.gettempdir()) / "ecoscanai_scan_history.json"
+            fallback.parent.mkdir(parents=True, exist_ok=True)
+            if not fallback.exists():
+                fallback.write_text("[]", encoding="utf-8")
+            self._history_file = fallback
+            return self._history_file
 
     def load(self) -> list[dict[str, Any]]:
         history_file = self._ensure_history_file()
@@ -55,20 +65,44 @@ def _history_store():
     return FileHistoryStore(settings.history_file_path)
 
 
+def _temp_history_store() -> FileHistoryStore:
+    return FileHistoryStore(str(Path(tempfile.gettempdir()) / "ecoscanai_scan_history.json"))
+
+
 def load_scan_history() -> list[dict[str, Any]]:
-    return _history_store().load()
+    store = _history_store()
+    try:
+        return store.load()
+    except Exception as exc:
+        logger.warning("History load failed, falling back to temp file storage: %s", exc)
+        return _temp_history_store().load()
 
 
 def save_scan_history(entries: list[dict[str, Any]]) -> None:
-    _history_store().save(entries)
+    store = _history_store()
+    try:
+        store.save(entries)
+    except Exception as exc:
+        logger.warning("History save failed, falling back to temp file storage: %s", exc)
+        _temp_history_store().save(entries)
 
 
 def append_scan_history(entry: dict[str, Any]) -> None:
-    _history_store().append(entry)
+    store = _history_store()
+    try:
+        store.append(entry)
+    except Exception as exc:
+        logger.warning("History append failed, falling back to temp file storage: %s", exc)
+        _temp_history_store().append(entry)
 
 
 def reset_scan_history() -> dict[str, int]:
-    return _history_store().reset()
+    store = _history_store()
+    try:
+        return store.reset()
+    except Exception as exc:
+        logger.warning("History reset failed, falling back to temp file storage: %s", exc)
+        return _temp_history_store().reset()
 
 
 def build_reports_summary() -> dict[str, Any]:
