@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "index.py": {
-      "maxDuration": 120
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
