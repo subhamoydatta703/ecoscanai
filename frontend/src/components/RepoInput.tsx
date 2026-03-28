@@ -63,7 +63,7 @@ export const RepoInput: React.FC<RepoInputProps> = ({ onScan, isLoading }) => {
             </div>
             <div className="rounded-[1.4rem] border border-emerald-900/30 bg-charcoal-950/25 px-3.5 py-3">
               <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-500/60">Step 3</p>
-              <p className="text-sm font-medium text-emerald-100 mt-1.5">Store the trend</p>
+              <p className="text-sm font-medium text-emerald-100 mt-1.5">Review across routes</p>
             </div>
           </div>
         </div>

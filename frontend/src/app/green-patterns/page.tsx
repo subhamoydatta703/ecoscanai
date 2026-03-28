@@ -14,6 +14,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { getPatterns, resetAuditHistory } from '@/lib/api';
+import { mergePatternsWithLiveSnapshot } from '@/lib/live-audit';
 import type { Pattern } from '@/lib/types';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -43,7 +44,7 @@ export default function GreenPatternsPage() {
   async function fetchPatterns() {
     try {
       const result = await getPatterns();
-      setPatterns(result.patterns || []);
+      setPatterns(result.history_enabled === false ? mergePatternsWithLiveSnapshot(result.patterns || []) : (result.patterns || []));
       setHistoryEnabled(result.history_enabled !== false);
     } catch (err) {
       console.error('Failed to fetch patterns:', err);
@@ -126,7 +127,7 @@ export default function GreenPatternsPage() {
               <p className="text-emerald-100/60 text-lg md:text-xl max-w-4xl leading-relaxed">
                 {historyEnabled
                   ? 'A living catalog of the optimization patterns your audits can actually surface, ranked by observed usage across your scan history.'
-                  : 'A curated library of the optimization patterns EcoScan can surface. This build keeps the catalog visible without storing shared usage history.'}
+                  : 'A curated library of the optimization patterns EcoScan can surface. Current-tab audit activity appears here temporarily without saving shared usage history.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -192,7 +193,7 @@ export default function GreenPatternsPage() {
                   <p className="text-sm text-emerald-100/65 mt-3 leading-relaxed">
                     {historyEnabled
                       ? 'The library is ready, but no audits are currently contributing usage data. This is the expected state right after a reset or before the first scan.'
-                      : 'The library is ready. This experience currently focuses on the reusable pattern catalog rather than saved usage activity.'}
+                      : 'The library is ready. Run a scan in this tab to see temporary pattern activity without persisting shared history.'}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -222,9 +223,13 @@ export default function GreenPatternsPage() {
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <BookOpen className="w-24 h-24" />
             </div>
-            <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Patterns In Library</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">{historyEnabled ? 'Patterns In Library' : 'Built-In Patterns'}</p>
             <p className="text-5xl font-black text-emerald-300 mt-4">{patterns.length}</p>
-            <p className="text-sm text-emerald-100/50 mt-3">Optimization ideas available to match against anomalies.</p>
+            <p className="text-sm text-emerald-100/50 mt-3">
+              {historyEnabled
+                ? 'Optimization ideas available to match against anomalies.'
+                : 'Static pattern definitions shipped with the app, so this count stays the same after refresh.'}
+            </p>
           </div>
 
           <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -233,7 +238,7 @@ export default function GreenPatternsPage() {
             </div>
             <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Observed In Audits</p>
             <p className="text-5xl font-black text-emerald-300 mt-4">{activePatterns.length}</p>
-            <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'Patterns that have already shown up in your repositories.' : 'Usage-based ranking is currently inactive in this history-free build.'}</p>
+            <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'Patterns that have already shown up in your repositories.' : 'Patterns matched in the current tab appear here until you refresh or open a new tab.'}</p>
           </div>
 
             <div className="glass-emerald rounded-3xl p-6 relative overflow-hidden">
@@ -242,7 +247,7 @@ export default function GreenPatternsPage() {
               </div>
               <p className="text-sm uppercase tracking-[0.2em] text-emerald-400/70">Total Recommendations</p>
               <p className="text-5xl font-black text-emerald-300 mt-4">{totalRecommendations}</p>
-              <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'How often the library has been matched across audits.' : 'Recommendation totals stay at zero while the app is running without shared history.'}</p>
+              <p className="text-sm text-emerald-100/50 mt-3">{historyEnabled ? 'How often the library has been matched across audits.' : 'Recommendation totals reflect the latest in-memory audit only and are not stored.'}</p>
             </div>
         </div>
 
@@ -250,7 +255,11 @@ export default function GreenPatternsPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-semibold text-emerald-50">Catalog</h2>
-              <p className="text-sm text-emerald-100/50 mt-1">Patterns are sorted by how often your audits have surfaced them.</p>
+              <p className="text-sm text-emerald-100/50 mt-1">
+                {historyEnabled
+                  ? 'Patterns are sorted by how often your audits have surfaced them.'
+                  : 'This is the built-in optimization catalog. Current-tab matches briefly enrich it, but the library itself always remains available.'}
+              </p>
             </div>
             <div className="hidden md:flex items-center gap-2 text-sm text-emerald-400/70">
               <ArrowUpRight className="w-4 h-4" />

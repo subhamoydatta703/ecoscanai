@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, BarChart2, FolderGit2, Loader2, RotateCcw, ShieldAlert, Sparkles } from 'lucide-react';
 import { getReports, resetAuditHistory } from '@/lib/api';
+import { buildLiveReportsSummary } from '@/lib/live-audit';
 import type { ReportsResponse } from '@/lib/types';
 
 export default function ReportsPage() {
@@ -13,7 +14,7 @@ export default function ReportsPage() {
   async function fetchReports() {
     try {
       const result = await getReports();
-      setData(result);
+      setData(result.history_enabled === false ? (buildLiveReportsSummary() || result) : result);
     } catch (err) {
       console.error("Failed to fetch reports data:", err);
     } finally {
@@ -100,7 +101,7 @@ export default function ReportsPage() {
                 Pattern activity
               </span>
               <span className="px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-900/20 text-sm text-emerald-200/80">
-                {historyEnabled ? 'Resettable history' : 'Live audit mode'}
+                {historyEnabled ? 'Resettable history' : 'Current-tab snapshot'}
               </span>
             </div>
             </div>
@@ -119,7 +120,7 @@ export default function ReportsPage() {
                       ? `${latestScan.repository_label} was your most recent recorded audit.`
                       : historyEnabled
                         ? 'Run a scan to start building a history timeline.'
-                        : 'Live audit mode keeps this page lightweight, so long-term snapshots are not being retained.'}
+                        : 'Run a scan in this tab to populate a temporary report snapshot without saving shared history.'}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-emerald-500/20 bg-charcoal-950/40 px-4 py-3 text-right">
@@ -177,9 +178,9 @@ export default function ReportsPage() {
                <div className="text-4xl font-black text-emerald-300">{data?.repositories_scanned || 0}</div>
                <p className="text-sm text-emerald-200/50 mt-2">{data?.total_scans || 0} total scans | {data?.total_files_scanned || 0} files inspected</p>
                <div className="mt-5 flex items-center gap-2 text-xs text-emerald-300/70">
-                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">{historyEnabled ? 'Persistent history' : 'History-free build'}</span>
-               </div>
-            </div>
+                 <span className="px-2.5 py-1 rounded-full border border-emerald-500/20 bg-charcoal-950/40">{historyEnabled ? 'Persistent history' : 'Not saved after refresh'}</span>
+                </div>
+             </div>
 
           </div>
 
@@ -328,7 +329,7 @@ export default function ReportsPage() {
                 <p className="text-emerald-500/50 text-sm max-w-sm mx-auto">
                   {historyEnabled
                     ? 'Run an audit from the Dashboard to build your scan history and trend chart.'
-                    : 'This demo is running without shared history, so reports remain empty until long-term tracking is enabled.'}
+                    : 'Run an audit from the Dashboard to see a temporary snapshot here for the current tab only.'}
                 </p>
               </div>
             )}

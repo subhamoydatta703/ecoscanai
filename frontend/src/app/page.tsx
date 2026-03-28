@@ -6,6 +6,7 @@ import { RepoInput } from '@/components/RepoInput';
 import { HealthCard } from '@/components/HealthCard';
 import { CodeDiff } from '@/components/CodeDiff';
 import { scanRepository } from '@/lib/api';
+import { setLiveAuditSnapshot } from '@/lib/live-audit';
 import type { ScanResult } from '@/lib/types';
 
 export default function Home() {
@@ -23,6 +24,7 @@ export default function Home() {
         setError(result.message || "Failed to scan repository.");
       } else {
          setScanResult(result);
+         setLiveAuditSnapshot(result);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
@@ -84,8 +86,8 @@ export default function Home() {
                       <Gauge className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">Trend Memory</span>
                     </div>
-                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Build reusable history</p>
-                    <p className="mt-1.5 text-sm text-emerald-100/50">Each audit feeds Reports and Green Patterns so repeated issues stay visible.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Carry the latest audit forward</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Reports and Green Patterns can reflect the current scan while you stay in this tab.</p>
                   </div>
                 </div>
               </div>
@@ -176,8 +178,8 @@ export default function Home() {
                 </div>
                 <div className="rounded-3xl border border-emerald-900/30 bg-charcoal-900/35 p-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-emerald-400/60">After the scan</p>
-                  <h3 className="text-xl font-semibold text-emerald-50 mt-3">History flows forward</h3>
-                  <p className="text-sm text-emerald-100/55 mt-3">Each scan contributes to Reports and Green Patterns, giving you a running view of health trends and repeated optimization opportunities.</p>
+                  <h3 className="text-xl font-semibold text-emerald-50 mt-3">The latest scan stays portable</h3>
+                  <p className="text-sm text-emerald-100/55 mt-3">Move to Reports and Green Patterns in the same tab to inspect the current audit without storing shared history.</p>
                 </div>
               </div>
             </section>
