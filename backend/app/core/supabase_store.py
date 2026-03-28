@@ -9,7 +9,7 @@ from app.core.settings import get_settings
 
 try:
     from supabase import Client, create_client
-except ImportError:  # pragma: no cover - exercised by fallback behavior
+except Exception:  # pragma: no cover - exercised by fallback behavior
     Client = Any  # type: ignore[assignment]
     create_client = None
 

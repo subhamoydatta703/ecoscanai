@@ -1,9 +1,13 @@
 import os
 import shutil
 import tempfile
-import git
 import uuid
 from urllib.parse import urlparse
+
+try:
+    import git
+except Exception:  # pragma: no cover - optional dependency in some runtimes
+    git = None
 
 class RepoManager:
     def __init__(self, base_dir=None):
@@ -29,6 +33,8 @@ class RepoManager:
         
         print(f"Cloning {repo_url} into {target_dir}...")
         try:
+            if git is None:
+                raise RuntimeError("GitPython is unavailable in the current runtime.")
             git.Repo.clone_from(
                 repo_url,
                 target_dir,

@@ -1,4 +1,8 @@
-from google import genai
+try:
+    from google import genai
+except Exception:  # pragma: no cover - optional dependency in some runtimes
+    genai = None
+
 from app.core.settings import get_settings
 
 class AIEngine:
@@ -12,7 +16,7 @@ class AIEngine:
             "gemini-2.5-pro",
             "gemini-flash-latest",
         ]
-        if api_key:
+        if api_key and genai is not None:
             self.client = genai.Client(api_key=api_key)
         else:
             self.client = None
