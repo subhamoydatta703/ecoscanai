@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Leaf, Code, FileText, Settings } from 'lucide-react';
+import { Activity, Leaf, Code, FileText } from 'lucide-react';
 
 export const Sidebar = () => {
   const pathname = usePathname();
@@ -42,13 +42,6 @@ export const Sidebar = () => {
           );
         })}
       </nav>
-      
-      <div className="p-4 border-t border-emerald-900/30">
-        <a href="#" onClick={(e) => { e.preventDefault(); alert("Settings page is coming soon!"); }} className="flex items-center space-x-3 px-4 py-3 text-gray-500 hover:text-emerald-300 transition-all rounded-xl border border-transparent">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium">Settings</span>
-        </a>
-      </div>
     </aside>
   );
 };
