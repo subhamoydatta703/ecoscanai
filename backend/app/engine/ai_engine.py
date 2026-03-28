@@ -24,13 +24,15 @@ class AIEngine:
         settings = get_settings()
         api_key = settings.gemini_api_key
         self.primary_model = settings.gemini_model
-        # Use diverse models so each has its own free-tier quota bucket.
+        # Each model has its own per-model-per-day free-tier quota bucket.
+        # gemini-1.5-flash has the highest free-tier limit (1500 req/day).
+        # gemini-2.5-pro is excluded — it has 0 free-tier quota.
         self.fallback_models = [
             self.primary_model,
             "gemini-2.5-flash",
             "gemini-2.0-flash",
             "gemini-2.0-flash-lite",
-            "gemini-2.5-pro",
+            "gemini-1.5-flash",
         ]
         if api_key and genai is not None:
             self.client = genai.Client(api_key=api_key)
@@ -97,6 +99,7 @@ class AIEngine:
                             model_name,
                             type(model_error).__name__,
                         )
+                        time.sleep(3)
                         continue
                     raise
 
@@ -128,8 +131,16 @@ class AIEngine:
             
         except Exception as e:
             logger.error("Error calling Gemini: %s", e)
+            # Show a clean message instead of the raw API error
+            user_message = str(e)
+            if "RESOURCE_EXHAUSTED" in user_message or "429" in user_message:
+                user_message = (
+                    "All available Gemini models have exceeded their free-tier quota. "
+                    "Quotas reset daily and are shared per Google Cloud project, not per API key. "
+                    "Try again later or enable billing on your Google Cloud project for higher limits."
+                )
             return {
                 "optimized_code": original_code,
-                "carbon_saving_ratio": "Error",
-                "explanation": f"Failed to generate green code: {str(e)}"
+                "carbon_saving_ratio": "N/A",
+                "explanation": user_message
             }
