@@ -1,3 +1,6 @@
+import logging
+import time
+
 try:
     from google import genai
 except Exception:  # pragma: no cover - optional dependency in some runtimes
@@ -5,16 +8,29 @@ except Exception:  # pragma: no cover - optional dependency in some runtimes
 
 from app.core.settings import get_settings
 
+logger = logging.getLogger(__name__)
+
+# Errors that should trigger a fallback to the next model rather than aborting.
+_RETRYABLE_ERROR_KEYWORDS = {"RESOURCE_EXHAUSTED", "429", "NOT_FOUND", "404", "quota"}
+
+
+def _is_retryable(error: Exception) -> bool:
+    message = str(error).lower()
+    return any(keyword.lower() in message for keyword in _RETRYABLE_ERROR_KEYWORDS)
+
+
 class AIEngine:
     def __init__(self):
         settings = get_settings()
         api_key = settings.gemini_api_key
         self.primary_model = settings.gemini_model
+        # Use diverse models so each has its own free-tier quota bucket.
         self.fallback_models = [
             self.primary_model,
             "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-lite",
             "gemini-2.5-pro",
-            "gemini-flash-latest",
         ]
         if api_key and genai is not None:
             self.client = genai.Client(api_key=api_key)
@@ -28,6 +44,7 @@ class AIEngine:
     def generate_green_code(self, original_code: str, anomaly_reasons: list[str]) -> dict:
         """
         Uses Gemini to suggest sustainable refactoring for anomalous code.
+        Falls back through multiple models when one is rate-limited or unavailable.
         """
         if not self.client:
             return {
@@ -64,16 +81,24 @@ class AIEngine:
 
             for model_name in dict.fromkeys(self.fallback_models):
                 try:
+                    logger.info("Trying Gemini model: %s", model_name)
                     response = self.client.models.generate_content(
                         model=model_name,
                         contents=prompt
                     )
                     text = response.text
+                    logger.info("Got response from model: %s", model_name)
                     break
                 except Exception as model_error:
                     last_error = model_error
-                    if "NOT_FOUND" not in str(model_error) and "404" not in str(model_error):
-                        raise
+                    if _is_retryable(model_error):
+                        logger.warning(
+                            "Model %s unavailable (%s), trying next model",
+                            model_name,
+                            type(model_error).__name__,
+                        )
+                        continue
+                    raise
 
             if text is None:
                 raise last_error or RuntimeError("No Gemini model returned a response.")
@@ -102,7 +127,7 @@ class AIEngine:
             }
             
         except Exception as e:
-            print(f"Error calling Gemini: {e}")
+            logger.error("Error calling Gemini: %s", e)
             return {
                 "optimized_code": original_code,
                 "carbon_saving_ratio": "Error",

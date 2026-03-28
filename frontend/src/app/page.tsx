@@ -49,18 +49,18 @@ export default function Home() {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/40 border border-emerald-500/20 text-emerald-300 text-sm font-medium">
                     <Leaf className="w-4 h-4" />
-                    Sustainable Audit Studio
+                    Sustainability Intelligence Platform
                   </div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-charcoal-900/45 border border-emerald-500/10 text-emerald-100/70 text-sm">
-                    Advanced anomaly triage
+                    Automated Code Analysis
                   </div>
                 </div>
                 <div className="space-y-3">
                   <h1 className="max-w-4xl text-[2.7rem] md:text-[3.4rem] xl:text-[4.25rem] font-black tracking-[-0.045em] text-emerald-50 leading-[0.92]">
-                    Audit code with a cleaner signal-to-noise ratio.
+                    Smarter audits for greener code.
                   </h1>
                   <p className="text-emerald-100/60 max-w-2xl text-sm md:text-base leading-relaxed">
-                    Surface structural hotspots, prioritize the strongest anomaly candidates, and review AI-backed optimization ideas in one place without wading through the whole repository.
+                    Detect inefficient patterns, surface anomalies, and get AI-driven refactoring — in one workflow.
                   </p>
                 </div>
 
@@ -70,24 +70,24 @@ export default function Home() {
                       <ScanSearch className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">Structural Scan</span>
                     </div>
-                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Find suspicious files quickly</p>
-                    <p className="mt-1.5 text-sm text-emerald-100/50">Complexity, sync-heavy paths, and repeat hotspots rise to the top first.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Identify high-impact files</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Computational complexity, synchronous I/O patterns, and structural anomalies are surfaced and ranked automatically.</p>
                   </div>
                   <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-3.5">
                     <div className="flex items-center gap-3 text-emerald-300">
                       <Sparkles className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">AI Guidance</span>
                     </div>
-                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Review targeted optimizations</p>
-                    <p className="mt-1.5 text-sm text-emerald-100/50">Suggestions stay grounded in the most meaningful anomaly candidates.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">AI-powered refactoring suggestions</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Each recommendation is scoped to the highest-priority anomalies with clear explanations and estimated impact.</p>
                   </div>
                   <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-3.5">
                     <div className="flex items-center gap-3 text-emerald-300">
                       <Gauge className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">Trend Memory</span>
                     </div>
-                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Carry the latest audit forward</p>
-                    <p className="mt-1.5 text-sm text-emerald-100/50">Reports and Green Patterns can reflect the current scan while you stay in this tab.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Persistent audit history</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Track recurring patterns across audits with Reports and Green Patterns views that reflect your latest findings.</p>
                   </div>
                 </div>
               </div>
