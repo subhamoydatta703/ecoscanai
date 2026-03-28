@@ -1,0 +1,24 @@
+# Python
+backend/venv/
+backend/.env
+backend/test_tmp/
+backend/__pycache__/
+backend/app/**/__pycache__/
+backend/tests/**/__pycache__/
+backend/data/scan_history.json
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# Misc
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db

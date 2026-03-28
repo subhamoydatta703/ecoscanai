@@ -1,0 +1,159 @@
+import json
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from app.data.green_patterns import get_pattern_library
+from app.core.settings import get_settings
+
+
+def _history_file() -> Path:
+    return Path(get_settings().history_file_path)
+
+
+def _ensure_history_file() -> Path:
+    history_file = _history_file()
+    history_file.parent.mkdir(parents=True, exist_ok=True)
+    if not history_file.exists():
+        history_file.write_text("[]", encoding="utf-8")
+    return history_file
+
+
+def load_scan_history() -> list[dict[str, Any]]:
+    history_file = _ensure_history_file()
+    try:
+        return json.loads(history_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        history_file.write_text("[]", encoding="utf-8")
+        return []
+
+
+def save_scan_history(entries: list[dict[str, Any]]) -> None:
+    history_file = _ensure_history_file()
+    history_file.write_text(json.dumps(entries, indent=2), encoding="utf-8")
+
+
+def append_scan_history(entry: dict[str, Any]) -> None:
+    history = load_scan_history()
+    history.append(entry)
+    save_scan_history(history)
+
+
+def reset_scan_history() -> dict[str, int]:
+    history = load_scan_history()
+    cleared_entries = len(history)
+    save_scan_history([])
+    return {"cleared_entries": cleared_entries}
+
+
+def build_reports_summary() -> dict[str, Any]:
+    history = load_scan_history()
+
+    if not history:
+        return {
+            "total_scans": 0,
+            "repositories_scanned": 0,
+            "average_health_score": 0,
+            "latest_health_score": 0,
+            "health_delta": "0",
+            "total_files_scanned": 0,
+            "total_anomalies_found": 0,
+            "critical_patterns_detected": 0,
+            "chart_status": "No scans yet. Run your first audit to populate the report.",
+            "history": [],
+            "recent_scans": [],
+            "pattern_usage": [],
+        }
+
+    total_scans = len(history)
+    total_files_scanned = sum(entry.get("total_files_scanned", 0) for entry in history)
+    total_anomalies_found = sum(entry.get("anomalies_found", 0) for entry in history)
+    total_critical = sum(
+        entry.get("critical_patterns_detected", 0)
+        or entry.get("critical_patterns_fixed", 0)
+        for entry in history
+    )
+    repositories_scanned = len({entry.get("repository") for entry in history if entry.get("repository")})
+    avg_health = sum(entry.get("health_score", 0) for entry in history) / len(history)
+    average_health_score = int(round(avg_health))
+
+    latest_health = history[-1].get("health_score", 0)
+    previous_health = history[-2].get("health_score", latest_health) if len(history) > 1 else latest_health
+    health_delta = latest_health - previous_health
+
+    pattern_usage: Counter[str] = Counter()
+    for entry in history:
+        pattern_usage.update(entry.get("pattern_counts", {}))
+
+    timeline = [
+        {
+            "label": entry.get("repository_label", "Scan"),
+            "health_score": entry.get("health_score", 0),
+            "anomalies_found": entry.get("anomalies_found", 0),
+            "total_files_scanned": entry.get("total_files_scanned", 0),
+            "scanned_at": entry.get("scanned_at"),
+        }
+        for entry in history[-8:]
+    ]
+
+    recent_scans = [
+        {
+            "repository": entry.get("repository", ""),
+            "repository_label": entry.get("repository_label", "Scan"),
+            "health_score": entry.get("health_score", 0),
+            "total_files_scanned": entry.get("total_files_scanned", 0),
+            "anomalies_found": entry.get("anomalies_found", 0),
+            "critical_patterns_detected": entry.get("critical_patterns_detected", entry.get("critical_patterns_fixed", 0)),
+            "pattern_counts": entry.get("pattern_counts", {}),
+            "scanned_at": entry.get("scanned_at"),
+        }
+        for entry in reversed(history[-5:])
+    ]
+    enriched_patterns = [
+        pattern for pattern in get_pattern_library(history)
+        if pattern.get("times_recommended", 0) > 0
+    ]
+    enriched_patterns.sort(key=lambda pattern: pattern["times_recommended"], reverse=True)
+
+    return {
+        "total_scans": total_scans,
+        "repositories_scanned": repositories_scanned,
+        "average_health_score": average_health_score,
+        "latest_health_score": latest_health,
+        "health_delta": f"{health_delta:+d}",
+        "total_files_scanned": total_files_scanned,
+        "total_anomalies_found": total_anomalies_found,
+        "critical_patterns_detected": total_critical,
+        "chart_status": "Health score over recent audits",
+        "history": timeline,
+        "recent_scans": recent_scans,
+        "pattern_usage": enriched_patterns,
+    }
+
+
+def make_scan_history_entry(result: dict[str, Any]) -> dict[str, Any]:
+    repository = result.get("repository", "")
+    flagged_files = result.get("flagged_files", [])
+    pattern_counts: Counter[str] = Counter()
+
+    for file_data in flagged_files:
+        for pattern in file_data.get("matched_patterns", []):
+            pattern_counts[pattern["id"]] += 1
+
+    critical_patterns_detected = sum(
+        count for pattern_id, count in pattern_counts.items() if pattern_id == "algorithm-big-o"
+    )
+
+    repository_label = repository.rstrip("/").split("/")[-1] or repository
+
+    return {
+        "repository": repository,
+        "repository_label": repository_label,
+        "health_score": result.get("health_score", 0),
+        "total_files_scanned": result.get("total_files_scanned", 0),
+        "anomalies_found": result.get("anomalies_found", 0),
+        "critical_patterns_detected": critical_patterns_detected,
+        "pattern_counts": dict(pattern_counts),
+        "scanned_at": datetime.now(timezone.utc).isoformat(),
+    }
