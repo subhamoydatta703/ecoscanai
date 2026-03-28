@@ -38,12 +38,12 @@ export default function Home() {
       <div className="absolute top-[580px] left-24 w-[360px] h-[360px] bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none -z-10" />
       <div className="absolute top-16 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto space-y-8">
-          <header className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-6 items-stretch pt-8">
-            <div className="relative overflow-hidden rounded-[2.25rem] border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(12,32,49,0.92),rgba(10,21,39,0.98))] p-7 md:p-9 shadow-[0_36px_90px_rgba(0,0,0,0.24)]">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <header className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_350px] gap-5 items-stretch pt-5">
+            <div className="relative overflow-hidden rounded-[2rem] border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(12,32,49,0.92),rgba(10,21,39,0.98))] p-6 md:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.2)]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.12),transparent_34%)] pointer-events-none" />
               <div className="absolute right-[-60px] top-[-40px] h-48 w-48 rounded-full bg-emerald-400/5 blur-3xl pointer-events-none" />
-              <div className="relative space-y-7">
+              <div className="relative space-y-5">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/40 border border-emerald-500/20 text-emerald-300 text-sm font-medium">
                     <Leaf className="w-4 h-4" />
@@ -53,58 +53,58 @@ export default function Home() {
                     Advanced anomaly triage
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <h1 className="max-w-4xl text-4xl md:text-5xl xl:text-6xl font-black tracking-[-0.04em] text-emerald-50 leading-[0.92]">
+                <div className="space-y-3">
+                  <h1 className="max-w-4xl text-[2.7rem] md:text-[3.4rem] xl:text-[4.25rem] font-black tracking-[-0.045em] text-emerald-50 leading-[0.92]">
                     Audit code with a cleaner signal-to-noise ratio.
                   </h1>
-                  <p className="text-emerald-100/60 max-w-2xl text-base md:text-lg leading-relaxed">
+                  <p className="text-emerald-100/60 max-w-2xl text-sm md:text-base leading-relaxed">
                     Surface structural hotspots, prioritize the strongest anomaly candidates, and review AI-backed optimization ideas in one place without wading through the whole repository.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-4">
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-3.5">
                     <div className="flex items-center gap-3 text-emerald-300">
                       <ScanSearch className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">Structural Scan</span>
                     </div>
-                    <p className="mt-3 text-sm font-medium text-emerald-50">Find suspicious files quickly</p>
-                    <p className="mt-2 text-sm text-emerald-100/50">Complexity, sync-heavy paths, and repeat hotspots rise to the top first.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Find suspicious files quickly</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Complexity, sync-heavy paths, and repeat hotspots rise to the top first.</p>
                   </div>
-                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-4">
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-3.5">
                     <div className="flex items-center gap-3 text-emerald-300">
                       <Sparkles className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">AI Guidance</span>
                     </div>
-                    <p className="mt-3 text-sm font-medium text-emerald-50">Review targeted optimizations</p>
-                    <p className="mt-2 text-sm text-emerald-100/50">Suggestions stay grounded in the most meaningful anomaly candidates.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Review targeted optimizations</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Suggestions stay grounded in the most meaningful anomaly candidates.</p>
                   </div>
-                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-4">
+                  <div className="rounded-2xl border border-emerald-900/30 bg-charcoal-900/35 p-3.5">
                     <div className="flex items-center gap-3 text-emerald-300">
                       <Gauge className="w-4 h-4" />
                       <span className="text-xs uppercase tracking-[0.2em]">Trend Memory</span>
                     </div>
-                    <p className="mt-3 text-sm font-medium text-emerald-50">Build reusable history</p>
-                    <p className="mt-2 text-sm text-emerald-100/50">Each audit feeds Reports and Green Patterns so repeated issues stay visible.</p>
+                    <p className="mt-2.5 text-sm font-medium text-emerald-50">Build reusable history</p>
+                    <p className="mt-1.5 text-sm text-emerald-100/50">Each audit feeds Reports and Green Patterns so repeated issues stay visible.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[2.25rem] border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(6,24,20,0.94),rgba(7,15,30,0.96))] p-5 md:p-6 shadow-[0_36px_90px_rgba(0,0,0,0.24)] overflow-hidden relative">
+            <div className="h-full rounded-[2rem] border border-emerald-500/20 bg-[linear-gradient(145deg,rgba(6,24,20,0.94),rgba(7,15,30,0.96))] p-4.5 md:p-5 shadow-[0_30px_80px_rgba(0,0,0,0.2)] overflow-hidden relative">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_42%)] pointer-events-none" />
-              <div className="relative flex h-full flex-col">
-                <div className="flex items-center justify-between gap-4 mb-5">
+              <div className="relative flex h-full flex-col justify-between">
+                <div className="flex items-center justify-between gap-4 mb-4">
                   <div>
                     <p className="text-xs uppercase tracking-[0.22em] text-emerald-300/70">Audit Workflow</p>
-                    <h2 className="text-[1.6rem] font-semibold text-emerald-50 mt-2 leading-tight">What happens after you hit scan</h2>
+                    <h2 className="text-[1.35rem] font-semibold text-emerald-50 mt-2 leading-tight">What happens after you hit scan</h2>
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-emerald-300/70" />
                 </div>
-                <div className="space-y-3">
-                  <div className="rounded-3xl border border-emerald-900/30 bg-charcoal-900/45 p-4">
+                <div className="flex-1 space-y-2.5">
+                  <div className="rounded-[1.7rem] border border-emerald-900/30 bg-charcoal-900/45 p-3.5">
                     <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
                         1
                       </div>
                       <div className="space-y-1.5">
@@ -113,9 +113,9 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-3xl border border-emerald-900/30 bg-charcoal-900/45 p-4">
+                  <div className="rounded-[1.7rem] border border-emerald-900/30 bg-charcoal-900/45 p-3.5">
                     <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
                         2
                       </div>
                       <div className="space-y-1.5">
@@ -124,9 +124,9 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-3xl border border-emerald-900/30 bg-charcoal-900/45 p-4">
+                  <div className="rounded-[1.7rem] border border-emerald-900/30 bg-charcoal-900/45 p-3.5">
                     <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-emerald-500/15 bg-emerald-900/15 text-sm font-semibold text-emerald-300">
                         3
                       </div>
                       <div className="space-y-1.5">
@@ -140,7 +140,9 @@ export default function Home() {
             </div>
           </header>
 
-          <RepoInput onScan={handleScan} isLoading={isScanning} />
+          <div className="-mt-2 md:-mt-4">
+            <RepoInput onScan={handleScan} isLoading={isScanning} />
+          </div>
 
           {error && (
             <div className="p-5 bg-red-900/35 border border-red-500/40 text-red-200 rounded-3xl mt-8 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
