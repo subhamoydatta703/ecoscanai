@@ -86,7 +86,7 @@ def get_settings() -> Settings:
         cors_origin_regex=_clean_regex(
             os.getenv(
                 "ECOSCAN_CORS_ORIGIN_REGEX",
-                r"^https?://(?:localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d{1,3}\.\d{1,3})(?::\d+)?$",
+                r"^https?://(?:localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.\d{1,3}\.\d{1,3})(?::\d+)?$|^https://[a-z0-9-]+\.vercel\.app$",
             )
         ),
         history_file_path=os.getenv(
