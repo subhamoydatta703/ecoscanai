@@ -41,6 +41,10 @@ function collectPatternUsage(result: ScanResult): Pattern[] {
   return [...patternMap.values()].sort((a, b) => (b.times_recommended || 0) - (a.times_recommended || 0));
 }
 
+export function getLiveAuditResult(): ScanResult | null {
+  return latestSnapshot?.result ?? null;
+}
+
 export function setLiveAuditSnapshot(result: ScanResult) {
   latestSnapshot = {
     result,

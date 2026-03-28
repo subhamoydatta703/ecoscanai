@@ -6,12 +6,12 @@ import { RepoInput } from '@/components/RepoInput';
 import { HealthCard } from '@/components/HealthCard';
 import { CodeDiff } from '@/components/CodeDiff';
 import { scanRepository } from '@/lib/api';
-import { setLiveAuditSnapshot } from '@/lib/live-audit';
+import { getLiveAuditResult, setLiveAuditSnapshot } from '@/lib/live-audit';
 import type { ScanResult } from '@/lib/types';
 
 export default function Home() {
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(getLiveAuditResult);
   const [error, setError] = useState<string | null>(null);
   const formatSeconds = (value?: number) => `${(value || 0).toFixed(2)}s`;
 
